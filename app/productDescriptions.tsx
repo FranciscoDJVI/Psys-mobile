@@ -1,16 +1,28 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
+import CustomDescriptions from './components/customDescriptions';
+
+interface Product {
+    id: number | string;
+    name: string;
+    brand: string;
+    model: string;
+    sizes: string;
+    price: number;
+    description: string;
+}
 
 export default function ProductDescriptions() {
 
     const { product } = useLocalSearchParams();
-    const [productDetails, setProductDetails] = useState(null);
+    const [productDetails, setProductDetails] = useState<Product | null>(null);
 
     useEffect(() => {
         if (product) {
             try {
-                const data = JSON.parse(product);
+                const productString = Array.isArray(product) ? product[0] : product;
+                const data = JSON.parse(productString);
                 setProductDetails(data);
             } catch (error) {
                 console.error('Error parsing product:', error);
@@ -24,12 +36,12 @@ export default function ProductDescriptions() {
 
     return (
         <View style={styles.container}>
+            <CustomDescriptions arrayData={[productDetails.description]} />
             <Text style={styles.title}>{productDetails.name}</Text>
             <Text style={styles.customText}>Marca: {productDetails.brand}</Text>
-            <Text style={styles.customText} >Modelo: {productDetails.model}</Text>
+            <Text style={styles.customText}>Modelo: {productDetails.model}</Text>
             <Text style={styles.customText}>Medidas: {productDetails.sizes}</Text>
-            <Text style={styles.price}>Precio: ${productDetails.price}</Text>
-            <Text style={styles.description}>{productDetails.description}</Text>
+            <Text style={styles.customText}>Precio: ${productDetails.price}</Text>
         </View>
     );
 }
@@ -46,7 +58,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 36,
         fontWeight: 'bold',
-        marginBottom: 10
     },
     price: {
         fontSize: 24,

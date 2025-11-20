@@ -1,14 +1,39 @@
 import { useEffect, useState } from "react";
-import { Text, TextInput, View, StyleSheet, Pressable } from "react-native";
-import { GetStock } from '../services/api.stock'
+import { Text, View, StyleSheet, Pressable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
+import { GetStockById, DeleteStockById, GetStock } from "../services/api.stock";
 
+interface Stock {
+  id: number;
+  name: string;
+  // Add other properties as needed based on your API response
+}
 
 export default function StockScreen() {
 
-  const [stock, setStock] = useState([]);
+  const [stock, setStock] = useState<Stock[]>([]);
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  const loadStock = async () => {
+
+    try {
+      const r = await GetStock()
+      if (r.status !== 200) {
+        throw new Error("Failed to load products")
+      }
+      setStock(r.data)
+
+    } catch (error) {
+      console.error("Error loading products:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => {
+    loadStock()
+  }, [])
 
   useEffect(() => {
     async function loadStock() {
@@ -18,26 +43,64 @@ export default function StockScreen() {
     loadStock();
   }, []);
 
+  const handleViewStockInformation = (id: number) => async () => {
+    try {
+      const r = await GetStockById(id);
+      if (r.status !== 200) {
+        throw new Error("Failed to load product");
+      }
+      router.push({
+        pathname: '/stockDescriptions',
+        params: { stock: JSON.stringify(r.data) }
+      });
+    } catch (error) {
+      console.error("Error loading product:", error);
+    }
+  }
+
+  const handleUpdateProducts = (id: number) => async () => {
+    try {
+      const r = await GetStockById(id);
+      if (r.status !== 200) {
+        throw new Error("Failed to load product");
+      }
+      router.push({
+        pathname: '/updateStock',
+        params: { stock: JSON.stringify(r.data) }
+      });
+    } catch (error) {
+      console.error("Error loading product:", error);
+    }
+  }
+  const handleDeletePresseable = (id: number) => async () => {
+    try {
+      const r = await DeleteStockById(id);
+      if (r.status !== 204) {
+        throw new Error("Failed to delete product");
+      }
+      loadStock()
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  }
+
   const handleAddstock = () => {
     router.push('/addStock')
   }
 
   return (
     <View style={style.customTextInputContainer}>
-      <View style={style.customHeaders}>
-        <Text style={style.customTextHeaders}>ID</Text>
-        <Text style={style.customTextHeaders} >Nombre</Text>
-        <Text style={style.customTextHeaders} >Cant.</Text>
-      </View>
       {stock.map((stock) => (
         <View
           key={stock.id}
           style={style.customListView}
         >
-
-          <Text style={style.customText}>{stock.id_product_stock}</Text>
           <Text style={style.customText} >{stock.name}</Text>
-          <Text style={style.customText} >{stock.quantity}</Text>
+          <View style={style.customContainetIcons}>
+            <FontAwesome style={style.pressableIcons} onPress={handleViewStockInformation(stock.id)} name='eye' color='green' size={30}></FontAwesome>
+            <FontAwesome style={style.pressableIcons} onPress={handleUpdateProducts(stock.id)} name='edit' color='blue' size={30}></FontAwesome>
+            <FontAwesome style={style.pressableIcons} onPress={handleDeletePresseable(stock.id)} name='trash' color='red' size={30}></FontAwesome>
+          </View>
         </View>
       ))}
 
@@ -48,8 +111,8 @@ export default function StockScreen() {
 
 const style = StyleSheet.create({
   customTextInputContainer: {
-    margin: 20,
-    padding: 10,
+    margin: 10,
+    padding: 5,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
@@ -58,6 +121,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
     height: 60,
     marginBottom: 5,
@@ -105,6 +169,13 @@ const style = StyleSheet.create({
   },
   pressableIcons: {
     marginRight: 20,
-  }
-
+  },
+  customContainetIcons: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 60,
+    marginRight: 0
+  },
 })

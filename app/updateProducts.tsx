@@ -1,9 +1,12 @@
-import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { UpdateProduct} from "./services/api.products";
+import { UpdateProduct } from "./services/api.products";
+import { CustomInput } from "./components/customInput";
+
 
 const INITIAL_PRODUCT_STATE = {
+    id: null as number | null,
     name: "",
     brand: "",
     model: "",
@@ -25,12 +28,14 @@ export default function UpdateProducts() {
             if (!product) return;
 
             let productId = null;
+            const productString = Array.isArray(product) ? product[0] : product;
 
             try {
-                const parsedProduct = JSON.parse(product);
+                const parsedProduct = JSON.parse(productString);
                 productId = parsedProduct.id;
 
                 setProductData({
+                    id: parsedProduct.id,
                     name: parsedProduct.name || "",
                     brand: parsedProduct.brand || "",
                     model: parsedProduct.model || "",
@@ -48,7 +53,7 @@ export default function UpdateProducts() {
         fetchProductData();
     }, [product]);
 
-    const handleInputChange = (name, value) => {
+    const handleInputChange = (name: string, value: string) => {
         setProductData(prevData => ({
             ...prevData,
             [name]: value,
@@ -58,7 +63,8 @@ export default function UpdateProducts() {
     const updateProductHandler = async () => {
 
         try {
-            const parsedProduct = JSON.parse(product);
+            const productString = Array.isArray(product) ? product[0] : product;
+            const parsedProduct = JSON.parse(productString);
             const r = await UpdateProduct(parsedProduct.id, productData);
             console.log(productData.id)
 
@@ -76,40 +82,34 @@ export default function UpdateProducts() {
     return (
         <View>
             <View style={style.customTextInputCotainer}>
-                <TextInput
+                <CustomInput
                     placeholder="Nombre"
-                    style={style.customTextInput}
                     value={productData.name}
                     onChangeText={(text) => handleInputChange('name', text)}
                 />
-                <TextInput
+                <CustomInput
                     placeholder="Marca"
-                    style={style.customTextInput}
                     value={productData.brand}
                     onChangeText={(text) => handleInputChange('brand', text)}
                 />
-                <TextInput
+                <CustomInput
                     placeholder="Modelo"
-                    style={style.customTextInput}
                     value={productData.model}
                     onChangeText={(text) => handleInputChange('model', text)}
                 />
-                <TextInput
+                <CustomInput
                     placeholder="Medidas"
-                    style={style.customTextInput}
                     value={productData.sizes}
                     onChangeText={(text) => handleInputChange('sizes', text)}
                 />
-                <TextInput
+                <CustomInput
                     placeholder="Precio"
-                    style={style.customTextInput}
                     value={productData.price}
                     onChangeText={(text) => handleInputChange('price', text)}
                     keyboardType="numeric"
                 />
-                <TextInput
+                <CustomInput
                     placeholder="Descripción"
-                    style={style.customTextInput}
                     value={productData.description}
                     onChangeText={(text) => handleInputChange('description', text)}
                     multiline={true}
@@ -117,7 +117,7 @@ export default function UpdateProducts() {
 
                 <View style={style.customPresseableContainer}>
                     <Pressable
-                        onPress={updateProductHandler} // 👈 Cambiar a la nueva función
+                        onPress={updateProductHandler}
                         style={{ backgroundColor: '#22c55e', padding: 10, width: '50%', margin: 5, borderRadius: 5 }}
                     >
                         <Text style={{ color: '#fff', textAlign: 'center', fontSize: 24 }}>Actualizar</Text>
@@ -142,18 +142,7 @@ const style = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
     },
-    customTextInput: {
-        backgroundColor: '#fff',
-        padding: 10,
-        margin: 10,
-        borderRadius: 5,
-        fontSize: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
-    },
+
     customPresseableContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
