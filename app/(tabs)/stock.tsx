@@ -7,7 +7,6 @@ import { GetStockById, DeleteStockById, GetStock } from "../services/api.stock";
 interface Stock {
   id: number;
   name: string;
-  // Add other properties as needed based on your API response
 }
 
 export default function StockScreen() {
@@ -19,11 +18,11 @@ export default function StockScreen() {
   const loadStock = async () => {
 
     try {
-      const r = await GetStock()
-      if (r.status !== 200) {
+      const response = await GetStock()
+      if (response.status !== 200) {
         throw new Error("Failed to load products")
       }
-      setStock(r.data)
+      setStock(response.data)
 
     } catch (error) {
       console.error("Error loading products:", error)
@@ -43,14 +42,17 @@ export default function StockScreen() {
     loadStock();
   }, []);
 
-  const handleViewStockInformation = (id: number) => async () => {
+  const handleAddstock = () => {
+    router.push('/addStock')
+  }
+  const handleStockInfo = (id: number) => async () => {
     try {
       const r = await GetStockById(id);
       if (r.status !== 200) {
         throw new Error("Failed to load product");
       }
       router.push({
-        pathname: '/stockDescriptions',
+        pathname: '/stockDescriptions' as any,
         params: { stock: JSON.stringify(r.data) }
       });
     } catch (error) {
@@ -58,7 +60,7 @@ export default function StockScreen() {
     }
   }
 
-  const handleUpdateProducts = (id: number) => async () => {
+  const handleUpdateProduct = (id: number) => async () => {
     try {
       const r = await GetStockById(id);
       if (r.status !== 200) {
@@ -72,7 +74,7 @@ export default function StockScreen() {
       console.error("Error loading product:", error);
     }
   }
-  const handleDeletePresseable = (id: number) => async () => {
+  const handleDelete = (id: number) => async () => {
     try {
       const r = await DeleteStockById(id);
       if (r.status !== 204) {
@@ -84,9 +86,6 @@ export default function StockScreen() {
     }
   }
 
-  const handleAddstock = () => {
-    router.push('/addStock')
-  }
 
   return (
     <View style={style.customTextInputContainer}>
@@ -97,9 +96,9 @@ export default function StockScreen() {
         >
           <Text style={style.customText} >{stock.name}</Text>
           <View style={style.customContainetIcons}>
-            <FontAwesome style={style.pressableIcons} onPress={handleViewStockInformation(stock.id)} name='eye' color='green' size={30}></FontAwesome>
-            <FontAwesome style={style.pressableIcons} onPress={handleUpdateProducts(stock.id)} name='edit' color='blue' size={30}></FontAwesome>
-            <FontAwesome style={style.pressableIcons} onPress={handleDeletePresseable(stock.id)} name='trash' color='red' size={30}></FontAwesome>
+            <FontAwesome style={style.pressableIcons} onPress={handleStockInfo(stock.id)} name='eye' color='green' size={30}></FontAwesome>
+            <FontAwesome style={style.pressableIcons} onPress={handleUpdateProduct(stock.id)} name='edit' color='blue' size={30}></FontAwesome>
+            <FontAwesome style={style.pressableIcons} onPress={handleDelete(stock.id)} name='trash' color='red' size={30}></FontAwesome>
           </View>
         </View>
       ))}

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, Href } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { UpdateStock } from "./services/api.stock";
 import { CustomInput } from "./components/customInput";
@@ -63,7 +63,7 @@ export default function UpdateProducts() {
 
             const r = await UpdateStock(parsedStock.id, dataStock);
             setStockData(INITIAL_STATE);
-            router.push('/stock');
+            router.push('/stock' as Href);
 
         } catch (error: any) {
             console.error("Error al actualizar producto:", error);
@@ -72,7 +72,7 @@ export default function UpdateProducts() {
     }
 
     const handleCancelPresseable = () => {
-        router.push('/stock');
+        router.push('/stock' as Href);
     }
 
     return (

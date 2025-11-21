@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, Href } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { UpdateProduct } from "./services/api.products";
 import { CustomInput } from "./components/customInput";
@@ -68,7 +68,7 @@ export default function UpdateProducts() {
             const r = await UpdateProduct(parsedProduct.id, productData);
             console.log(productData.id)
 
-            router.push('/products');
+            router.push('/products' as Href);
 
         } catch (error) {
             console.error("Error al actualizar producto:", error);
@@ -76,7 +76,7 @@ export default function UpdateProducts() {
     }
 
     const handleCancelPresseable = () => {
-        router.push('/products');
+        router.push('/products' as Href);
     }
 
     return (

@@ -1,6 +1,6 @@
 import { Text, Pressable, View, StyleSheet, TextInput } from 'react-native';
 import { PostStock } from './services/api.stock';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { useState } from 'react';
 import { CustomInput } from './components/customInput';
 
@@ -32,7 +32,7 @@ export default function AddStockScreen() {
     try {
       const r = await PostStock(dataStock);
 
-      router.push('/stock');
+      router.push('/stock' as Href);
 
     } catch (error) {
       console.error("Error al agregar stock:", error);
@@ -41,7 +41,7 @@ export default function AddStockScreen() {
   }
 
   const cancel = () => {
-    router.push('/stock');
+    router.push('/stock' as Href);
   }
 
   return (
